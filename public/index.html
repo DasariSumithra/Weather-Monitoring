@@ -1,0 +1,54 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Weather Monitoring System</h1>
+  
+  <!-- Input field for city name -->
+  <input type="text" id="city-input" placeholder="Enter city name" />
+  <button id="fetch-weather">Get Weather</button>
+
+  <div id="weather-data"></div>
+
+  <script>
+    // Fetch the weather data when the button is clicked
+    document.getElementById('fetch-weather').addEventListener('click', () => {
+      const city = document.getElementById('city-input').value;
+      if (city) {
+        fetch(`/current-weather?city=${city}`)
+          .then(response => response.json())
+          .then(data => {
+            // Handle case where weather data might be missing or malformed
+            if (!data || !data.weather || data.weather.length === 0) {
+              document.getElementById('weather-data').innerHTML = '<p>Error: Weather data unavailable</p>';
+              return;
+            }
+
+            // Display the fetched weather data
+            const weatherDiv = document.getElementById('weather-data');
+            weatherDiv.innerHTML = `
+              <p>Location: ${data.name}</p>
+              <p>Main Weather: ${data.weather[0].main}</p>
+              <p>Description: ${data.weather[0].description}</p>
+              <p>Temperature: ${(data.main.temp - 273.15).toFixed(2)}°C</p>
+              <p>Feels Like: ${(data.main.feels_like - 273.15).toFixed(2)}°C</p>
+              <p>Humidity: ${data.main.humidity}%</p>
+            `;
+          })
+          .catch(err => {
+            console.error('Error fetching weather data:', err);
+            document.getElementById('weather-data').innerHTML = '<p>Error fetching weather data</p>';
+          });
+      } else {
+        document.getElementById('weather-data').innerHTML = '<p>Please enter a city name.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
